@@ -15,10 +15,7 @@ func Setup() *http.ServeMux {
 		}
 	})
 
-	getRouter := ValidationRouter{}
-	getRouter.SetValidationStruct("MemeQueryParams")
-	getRouter.SetHandler("GetMeme")
-	router.HandleFunc("GET /", getRouter.Get)
+	router.HandleFunc("GET /", GetMeme)
 
 	return router
 }
