@@ -9,7 +9,7 @@ import (
 
 type MemeQueryParams struct {
 	Lat   float32 `json:"lat" schema:"lat" validate:"latitude"`
-	Lon   float32 `json:"description" schema:"lon" validate:"longitude"`
+	Lon   float32 `json:"lon" schema:"lon" validate:"longitude"`
 	Query string  `json:"query" schema:"query"`
 }
 
