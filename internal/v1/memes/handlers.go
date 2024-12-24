@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/gorilla/schema"
 	"net/http"
+	"reflect"
 )
 
 type MemeQueryParams struct {
@@ -20,9 +21,25 @@ type Meme struct {
 	Description string `json:"description"`
 }
 
-func GetMeme(w http.ResponseWriter, r *http.Request) {
+type ValidationRouter struct {
+	validationStruct reflect.Type
+	handler          reflect.Type
+}
+
+func (vr *ValidationRouter) SetValidationStruct(structName string) {
+	vr.validationStruct = reflect.TypeOf(structName)
+}
+
+func (vr *ValidationRouter) SetHandler(handlerName string) {
+	vr.handler = reflect.TypeOf(handlerName)
+}
+
+func (vr *ValidationRouter) Get(w http.ResponseWriter, r *http.Request) {
 	// start request validation
 	// TODO: There has to be a better way to do this
+
+	queryParams := reflect.TypeOf(vr.validationStruct)
+
 	validate := validator.New()
 
 	err := r.ParseForm()
@@ -30,11 +47,10 @@ func GetMeme(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad Request 1", http.StatusBadRequest)
 		return
 	}
-	var queryParams MemeQueryParams
 	decoder := schema.NewDecoder()
 
 	decoder.IgnoreUnknownKeys(true)
-	err = decoder.Decode(&queryParams, r.Form)
+	err = decoder.Decode(queryParams, r.Form)
 
 	if err != nil {
 		http.Error(w, "Bad Request 2", http.StatusBadRequest)
@@ -57,6 +73,18 @@ func GetMeme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// end request validation
+	// start handler
+	handler_func := reflect.ValueOf(vr.validationStruct)
+	//method, _ := handler_func.NamedMethod("GetMeme")
+	args := []reflect.Value{
+		reflect.ValueOf(w),
+		reflect.ValueOf(r),
+	}
+	//println("METHOD NAME: ", handler_func)
+	handler_func.
+}
+func GetMeme(w http.ResponseWriter, r *http.Request) {
+
 	meme := Meme{
 		ID:          "1",
 		URL:         "https://i.imgflip.com/30b1gx.jpg",
@@ -64,7 +92,7 @@ func GetMeme(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(meme)
+	err := json.NewEncoder(w).Encode(meme)
 	if err != nil {
 		return
 	}
