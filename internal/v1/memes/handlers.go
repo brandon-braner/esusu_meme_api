@@ -2,23 +2,37 @@ package memes
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
+
+	"github.com/brandonbraner/memesApi/internal/http/validators"
 )
 
+type MemeQueryParams struct {
+	Lat   float32 `json:"lat" schema:"lat" validate:"latitude"`
+	Lon   float32 `json:"lon" schema:"lon" validate:"longitude"`
+	Query string  `json:"query" schema:"query"`
+}
+
 type Meme struct {
-	Name        string `json:"name"`
+	ID          string `json:"id"`
+	URL         string `json:"url"`
 	Description string `json:"description"`
 }
 
 func GetMeme(w http.ResponseWriter, r *http.Request) {
+	var queryParams MemeQueryParams
 
-	meme := Meme{
-		Name:        "python",
-		Description: "the best language",
+	ok := validators.CheckQueryParamsValid(w, r, &queryParams)
+	if !ok {
+		return
 	}
 
-	log.Println("MEME", meme)
+	meme := Meme{
+		ID:          "1",
+		URL:         "https://i.imgflip.com/30b1gx.jpg",
+		Description: "Two buttons",
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(meme)
 	if err != nil {
