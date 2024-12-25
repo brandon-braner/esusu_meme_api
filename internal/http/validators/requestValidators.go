@@ -8,8 +8,9 @@ import (
 	"github.com/gorilla/schema"
 )
 
+var validate = validator.New()
+
 func ValidateQueryParams(r *http.Request, params interface{}) ([]string, error) {
-	validate := validator.New()
 
 	if err := r.ParseForm(); err != nil {
 		return nil, fmt.Errorf("failed to parse form: %w", err)
